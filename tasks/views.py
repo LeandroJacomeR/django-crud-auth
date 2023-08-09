@@ -5,6 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.db import IntegrityError
 from .form import TaskForm
 from .models import Tasks
+from django.utils import timezone
 
 
 def home(request):
@@ -79,6 +80,19 @@ def task_detail(request, id):
                 'form': form,
                 'error': 'Error updating task',
                 })
+
+def complete_task(request, id):
+    task = get_object_or_404(Tasks, pk=id, user=request.user)
+    if request.method == 'POST':
+        task.datecompleted = timezone.now()
+        task.save()
+        return redirect('tasks')
+
+def delete_task(request, id):
+    task = get_object_or_404(Tasks, pk=id, user=request.user)
+    if request.method == 'POST':
+        task.delete()
+        return redirect('tasks')
 
 def signout(request):
     logout(request)
